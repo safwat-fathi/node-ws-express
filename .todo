@@ -1,0 +1,68 @@
+# WebSocket with Node.js, Express, and TypeScript
+
+First, create a class for each type of chat (chat room or private chat). This class should contain methods for sending and receiving messages, as well as methods for managing the list of participants in the chat. 
+
+Next, create a WebSocket server that will handle incoming messages from clients. The server should also keep track of which client is connected to which chat room or private chat. 
+
+When a client connects to the server, the server should first determine if it is connecting to a chat room or a private chat. If it is connecting to a chat room, the server should add the client to that chat room's list of participants. If it is connecting to a private chat, the server should add both participants in the conversation to that conversation's list of participants. 
+
+Once the connection has been established between the client and the server, the client can start sending messages. The server should then forward these messages to all other participants in either the chat room or private conversation. 
+
+Finally, when a participant leaves either a chat room or private conversation, they should be removed from that list of participants so that no further messages are sent to them.
+
+---
+
+## The code to implement chat rooms and private chat in websocket with nodejs express typescript using object-oriented programming
+
+``` typescript
+//Server-side code
+import *as express from 'express';
+import* as http from 'http';
+import * as WebSocket from 'ws';
+
+const app = express();
+
+//initialize a simple http server
+const server = http.createServer(app);
+
+//initialize the WebSocket server instance
+const wss = new WebSocket.Server({ server });
+
+ //listen to the connection event for incoming sockets
+wss.on('connection', (ws: WebSocket) => {
+
+	//listen to the message event for incoming messages from the connected socket 
+	ws.on('message', (message: string) => {
+
+			//here you can parse the incoming message to determine which type of message it is and handle it accordingly
+
+			//For example, if it's a chatroom message, broadcast it to all connected clients in that chatroom
+
+			if (message.type === 'chatroom') {
+
+					wss.clients.forEach(client => {
+
+							if (client !== ws && client.readyState === WebSocket.OPEN) {
+
+									client.send(JSON.stringify({ type: 'chatroom', message }));
+
+							}
+
+					});
+
+	} else if (message.type === 'private') { //if it's a private message, send it only to the intended recipient 
+ const recipientClient = wss.clients.find(client => client !== ws && client.userId === message.recipientId);
+
+			if (recipientClient && recipientClient.readyState === WebSocket.OPEN) {
+
+					recipientClient.send(JSON.stringify({ type: 'private', message }));
+
+			} else { //if recipient is not connected, save the private message in DB and notify them when they come online 
+
+					//saveMessageInDB(message); 
+					//notifyRecipientOnConnect(recipientId); 
+			}                
+
+	} else { //handle other types of messages here...   }   }); });   server.listen(process
+}
+```
