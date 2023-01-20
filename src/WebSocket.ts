@@ -63,7 +63,7 @@ export default class WebSocketServer {
 
   broadcast(payload: string, socket: WebSocket) {
     this._clients.forEach(client => {
-      if (client !== socket && client["readyState"] === WebSocket["OPEN"]) {
+      if (client !== socket && client.readyState === WebSocket.OPEN) {
         client.send(`Hello, broadcast message -> ${payload}`);
       }
     });
@@ -93,6 +93,13 @@ export default class WebSocketServer {
 
     this._wss.on("close", () => {
       console.log("Server closed");
+    });
+
+    this._wss.on("error", (err: Error) => {
+      this._wss.close(err => err);
+      console.log("Server error", err);
+
+      process.exit(1);
     });
   }
 }
